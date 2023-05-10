@@ -7,10 +7,12 @@ const typeDefs = gql`
   type Tecnologia {
     tecnologia: String
   }
-
   type Query {
     obtenerCursos: [Curso]
     obtenerTecnologia: [Tecnologia]
   }
+  type Mutation {
+    crearUsuario: String
+  }
 `
-module.exports = typeDefs;
+module.exports = typeDefs
