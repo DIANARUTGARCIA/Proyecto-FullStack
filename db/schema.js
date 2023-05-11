@@ -9,8 +9,15 @@ const typeDefs = gql`
     nombre: String
     id: ID
   }
+  type Tarea {
+    nombre: String
+    id: ID
+    proyecto: String
+    estado: Boolean
+  }
   type Query {
     obtenerProyectos: [Proyecto]
+    obtenerTareas(input: ProyectoIDInput): [Tarea]
   }
   input UsuarioInput {
     nombre: String!
@@ -28,6 +35,10 @@ const typeDefs = gql`
   input ProyectoInput {
     nombre: String!
   }
+  input TareaInput {
+    nombre: String!
+    proyecto: String
+  }
 
   type Mutation {
     crearUsuario(input: UsuarioInput): String
@@ -36,6 +47,10 @@ const typeDefs = gql`
     nuevoProyecto(input: ProyectoInput): Proyecto
     actualizarProyecto(id: ID!, input: ProyectoInput): Proyecto
     eliminarProyecto(id: ID!): String
+
+    nuevaTarea(input: TareaInput): Tarea
+    actualizarTarea(id: ID!, input: TareaInput, estado: Boolean): Tarea
+    eliminarTarea(id: ID!): String
   }
 `
 module.exports = typeDefs
