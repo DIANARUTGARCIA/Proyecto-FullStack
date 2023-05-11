@@ -1,32 +1,47 @@
 const { ApolloServer, gql } = require('apollo-server')
+const Usuario = require('../models/Usuario')
+const bcryptjs = require('bcryptjs')
 
-const cursos = [
-  {
-    titulo: 'JavaScript Moderno Guia Definiva construye +10 proyectos',
-    tecnologia: 'Javascript ES6',
-  },
-  {
-    titulo: 'React - a guia completa Hooks context redux Mern +15 apps',
-    tecnologia: 'React',
-  },
-  {
-    titulo: 'Node.js - Bootcamp desarrolo web inc RVC y Rest API´s',
-    tecnologia: 'Node.js',
-  },
-  {
-    titulo: 'React Js Avanzado - Fullstack React GraphQL y apollo',
-    tecnologia: 'React',
-  },
-]
-// Crear los resolvers
 const resolvers = {
-  Query: {
-    obtenerCursos: () => cursos,
-    obtenerTecnologia: () => cursos,
-  },
+  Query: {},
   Mutation: {
-    crearUsuario: () => {
-      console.log('creando usuario')
+    crearUsuario: async (_, { input }, ctx) => {
+      const { email, password } = input
+      const existeUsuario = await Usuario.findOne({ email })
+      //existe usaurio
+      if (existeUsuario) {
+        throw new Error('El usuario ya esta registrado,baboso')
+      }
+      try {
+        //enmascarar constraseña
+
+        const salt = await bcryptjs.genSalt(10)
+        input.password = await bcryptjs.hash(password, salt)
+
+        const nuevoUsuario = new Usuario(input)
+        nuevoUsuario.save()
+        return 'Usuario creado correctamente'
+      } catch (error) {
+        console(error)
+      }
+    },
+    autenticarUsuario: async (_, { input }, ctx) => {
+      const { email, password } = input
+      //existe usuurio
+      const existeUsuario = await Usuario.findOne({ email })
+      if (!existeUsuario) {
+        throw new Error('El usuario no existe')
+      }
+      //contraseña correcta
+      const passwordCorrecta = await bcryptjs.compare(
+        password,
+        existeUsuario.password,
+      )
+      if (!passwordCorrecta) {
+        throw new Error('Contraseña Incorrecta')
+      }
+      //acceso
+      return "Haz iniciado sesión"
     },
   },
 }
