@@ -7,6 +7,10 @@ const typeDefs = gql`
   type Tecnologia {
     tecnologia: String
   }
+  type Proyecto {
+    nombre: String
+    id: ID
+  }
   type Query {
     obtenerCursos: [Curso]
     obtenerTecnologia: [Tecnologia]
@@ -23,9 +27,13 @@ const typeDefs = gql`
   type Token {
     token: String
   }
+  input ProyectoInput {
+    nombre: String!
+  }
   type Mutation {
-    crearUsuario(input:UsuarioInput): String
-    autenticarUsuario(input:AutenticarInput): Token
+    crearUsuario(input: UsuarioInput): String
+    autenticarUsuario(input: AutenticarInput): Token
+    nuevoProyecto(input: ProyectoInput): Proyecto
   }
 `
 module.exports = typeDefs
