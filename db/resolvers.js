@@ -1,6 +1,14 @@
 const { ApolloServer, gql } = require('apollo-server')
 const Usuario = require('../models/Usuario')
 const bcryptjs = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+require('dotenv').config({ path: 'variables.env' })
+
+//crear firma jwt
+const crearToken = (usuario, secreta, expiresIn) => {
+  const { id, email } = usuario
+  return jwt.sign({ id, email }, secreta, { expiresIn })
+}
 
 const resolvers = {
   Query: {},
@@ -41,7 +49,9 @@ const resolvers = {
         throw new Error('Contraseña Incorrecta')
       }
       //acceso
-      return "Haz iniciado sesión"
+      return {
+        token: crearToken(existeUsuario, process.env.SECRETA, '2hr'),
+      }
     },
   },
 }
