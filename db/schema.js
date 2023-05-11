@@ -1,6 +1,11 @@
 const { gql } = require('apollo-server')
 
 const typeDefs = gql`
+
+  type Token {
+    token: String
+  }
+  
   type Curso {
     titulo: String
   }
@@ -24,16 +29,19 @@ const typeDefs = gql`
     email: String!
     password: String!
   }
-  type Token {
-    token: String
-  }
+  
   input ProyectoInput {
     nombre: String!
   }
+
+
   type Mutation {
     crearUsuario(input: UsuarioInput): String
     autenticarUsuario(input: AutenticarInput): Token
+
+
     nuevoProyecto(input: ProyectoInput): Proyecto
+    actualizarProyecto(id : ID!,  input: ProyectoInput) : Proyecto
   }
 `
 module.exports = typeDefs

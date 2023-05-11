@@ -1,4 +1,3 @@
-const { ApolloServer, gql } = require('apollo-server')
 const Usuario = require('../models/Usuario')
 const Proyecto = require('../models/Proyecto')
 const bcryptjs = require('bcryptjs')
@@ -7,8 +6,8 @@ require('dotenv').config({ path: 'variables.env' })
 
 //crear firma jwt
 const crearToken = (usuario, secreta, expiresIn) => {
-  const { id, email } = usuario
-  return jwt.sign({ id, email }, secreta, { expiresIn })
+  const { id, email, nombre } = usuario
+  return jwt.sign({ id, email, nombre }, secreta, { expiresIn })
 }
 
 const resolvers = {
@@ -54,15 +53,39 @@ const resolvers = {
         token: crearToken(existeUsuario, process.env.SECRETA, '2hr'),
       }
     },
-    nuevoProyecto: async (_, { input }) => {
+    nuevoProyecto: async (_, { input }, ctx) => {
       try {
         const proyecto = new Proyecto(input)
+
+        // asociar el creador
+        proyecto.creador = ctx.usuario.id
+
+        // almacenarlo en la BD
         const resultado = await proyecto.save()
+
         return resultado
       } catch (error) {
         console.log(error)
       }
-      console.log('creando proyecto')
+    },
+    actualizarProyecto: async (_, { id, input }, ctx) => {
+      // Revisar si el proyecto existe o no
+      let proyecto = await Proyecto.findById(id)
+
+      if (!proyecto) {
+        throw new Error('Proyecto no encontrado')
+      }
+
+      // Revisar que si la persona
+      if (proyecto.creador.toString() !== ctx.usuario.id) {
+        throw new Error('No tienes las credenciales para editar')
+      }
+
+      // Guardar el proyecto
+      proyecto = await Proyecto.findOneAndUpdate({ _id: id }, input, {
+        new: true,
+      })
+      return proyecto
     },
   },
 }
