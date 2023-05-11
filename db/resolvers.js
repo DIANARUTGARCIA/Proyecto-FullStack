@@ -11,7 +11,13 @@ const crearToken = (usuario, secreta, expiresIn) => {
 }
 
 const resolvers = {
-  Query: {},
+  Query: {
+    obtenerProyectos: async (_, {}, ctx) => {
+      const proyectos = await Proyecto.find({ creador: ctx.usuario.id })
+
+      return proyectos
+    },
+  },
   Mutation: {
     crearUsuario: async (_, { input }) => {
       const { email, password } = input
@@ -71,21 +77,31 @@ const resolvers = {
     actualizarProyecto: async (_, { id, input }, ctx) => {
       // Revisar si el proyecto existe o no
       let proyecto = await Proyecto.findById(id)
-
       if (!proyecto) {
         throw new Error('Proyecto no encontrado')
       }
-
-      // Revisar que si la persona
       if (proyecto.creador.toString() !== ctx.usuario.id) {
         throw new Error('No tienes las credenciales para editar')
       }
-
-      // Guardar el proyecto
+      // Guardar proyecto
       proyecto = await Proyecto.findOneAndUpdate({ _id: id }, input, {
         new: true,
       })
       return proyecto
+    },
+    eliminarProyecto: async (_, { id }, ctx) => {
+      // Revisar si el proyecto existe o no
+      let proyecto = await Proyecto.findById(id)
+      if (!proyecto) {
+        throw new Error('Proyecto no encontrado')
+      }
+      // Revisar que si la persona que edita es el
+      if (proyecto.creador.toString() !== ctx.usuario.id) {
+        throw new Error('No tienes las credenciales para editar')
+      }
+      // Eliminar proyecto
+      await Proyecto.findOneAndDelete({ _id: id })
+      return 'Proyecto Eliminado'
     },
   },
 }
