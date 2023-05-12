@@ -30,7 +30,7 @@ const resolvers = {
       const existeUsuario = await Usuario.findOne({ email })
       //existe usaurio
       if (existeUsuario) {
-        throw new Error('El usuario ya esta registrado,baboso')
+        throw new Error('El usuario ya esta registrado')
       }
       try {
         //enmascarar constraseña
@@ -62,7 +62,7 @@ const resolvers = {
       }
       //acceso
       return {
-        token: crearToken(existeUsuario, process.env.SECRETA, '2hr'),
+        token: crearToken(existeUsuario, process.env.SECRETA, '8hr'),
       }
     },
     nuevoProyecto: async (_, { input }, ctx) => {
